@@ -1,8 +1,8 @@
 ﻿#pragma strict
 
 public var eca : GameObject;
-public var shoutingClip : AudioClip;
-public var toggle: int;
+public var myAudioClip : AudioClip;
+public var GUIOn: int;
 
 private var anim : Animator;
 private var LocationX: float;
@@ -17,25 +17,38 @@ function Awake()
 	LocationY = 50;
 	buttonSize = 70;
 	spacing = 10;
-	toggle = 1;
+	GUIOn = 1;
 }
 
 function OnGUI() //no idea how to get this to loop properly
 {
 	
 	//Make these editable in Unity menu?
-	if(toggle==1){
+	if(GUIOn==1){
 		//Use GUI Layout http://www.youtube.com/watch?v=b34j4eTfRJ4
 		if(GUI.Button(Rect(LocationX,LocationY,buttonSize,buttonSize), "Shout")) 
 		{
 			anim.SetFloat("MovementSpeed",0); 
 			anim.SetBool("Shout", true);
-			AudioSource.PlayClipAtPoint(shoutingClip, transform.position); //maybe make sure no other audio is playing first
+			AudioSource.PlayClipAtPoint(myAudioClip, transform.position); //maybe make sure no other audio is playing first
+			Invoke("whenDone",myAudioClip.length);
+			GUIOn=0;
 		}
 		else if(GUI.Button(Rect(LocationX,LocationY+buttonSize+spacing,buttonSize,buttonSize), "Run!")) 
 		{
+			anim.SetBool("Shout", false);
 			anim.SetFloat("MovementSpeed",1);
-			toggle=0;
+			GUIOn=0;
 		}
 	}
+		
 }
+
+function whenDone()
+{
+	anim.SetBool("Shout", false);
+	anim.SetFloat("MovementSpeed",0); 
+	GUIOn=1;
+}
+
+
