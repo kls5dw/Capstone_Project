@@ -1,43 +1,52 @@
 ﻿#pragma strict
 
-public var eca : GameObject;
 public var myAudioClip : AudioClip;
-public var GUIOn: int;
+static var GUIOn: int;
 
 private var anim : Animator;
 private var LocationX: float;
 private var LocationY: float;
-private var buttonSize: float;
+private var buttonSizeX: float;
+private var buttonSizeY: float;
 private var spacing: float;
+private var blueButtonStyle: GUIStyle;
 
-function Awake()
+function Awake(){
+
+}
+function Start()
 {
-	anim = eca.GetComponent(Animator);
-	LocationX = 500; //can use Screen.height/2 or whatever
-	LocationY = 50;
-	buttonSize = 70;
-	spacing = 10;
-	GUIOn = 1;
+	//can probably just reference everything directly but this is here in case you want to change things from default
+	anim = Variables.anim;
+	LocationX = Variables.LocationX;
+	LocationY = Variables.LocationY;
+	buttonSizeX = Variables.buttonSizeX;
+	buttonSizeY = Variables.buttonSizeY;
+	spacing = Variables.spacing;
+	//blueButtonStyle = Variables.blueButtonStyle;
 }
 
-function OnGUI() //no idea how to get this to loop properly
+function OnGUI()
 {
-	
-	//Make these editable in Unity menu?
 	if(GUIOn==1){
-		//Use GUI Layout http://www.youtube.com/watch?v=b34j4eTfRJ4
-		if(GUI.Button(Rect(LocationX,LocationY,buttonSize,buttonSize), "Shout")) 
+		createStyles(); //needs to be called in OnGUI but this makes it complicated to edit from another script.
+
+		if(GUI.Button(Rect(LocationX,LocationY,buttonSizeX,buttonSizeY), "Do Something")) 
 		{
-			anim.SetFloat("MovementSpeed",0); 
-			anim.SetBool("Shout", true);
+			Variables.resumeIdle();	//idk if this is needed.
+			anim.SetBool("Shout", true); 
 			AudioSource.PlayClipAtPoint(myAudioClip, transform.position); //maybe make sure no other audio is playing first
-			Invoke("whenDone",myAudioClip.length);
+						//even though its a 2D sound you can still play it at a position. 
+			Invoke("whenDone",myAudioClip.length); 		//http://answers.unity3d.com/questions/346815/how-to-know-if-a-audiosource-finished-playing-with.html
+			//Invoke("whenDone",7);
 			GUIOn=0;
 		}
-		else if(GUI.Button(Rect(LocationX,LocationY+buttonSize+spacing,buttonSize,buttonSize), "Run!")) 
+		else if(GUI.Button(Rect(LocationX,LocationY+buttonSizeY+spacing,buttonSizeX,buttonSizeY), "Run (No Sound)", blueButtonStyle)) 
 		{
-			anim.SetBool("Shout", false);
+			Variables.resumeIdle(); 
 			anim.SetFloat("MovementSpeed",1);
+			//no audio
+			Invoke("whenDone",5);
 			GUIOn=0;
 		}
 	}
@@ -46,9 +55,20 @@ function OnGUI() //no idea how to get this to loop properly
 
 function whenDone()
 {
-	anim.SetBool("Shout", false);
-	anim.SetFloat("MovementSpeed",0); 
-	GUIOn=1;
+	Variables.resumeIdle();
+	ButtonTest2.GUIOn=1; 	
+}
+function createStyles()
+{
+	blueButtonStyle = new GUIStyle(GUI.skin.button);
+	blueButtonStyle.normal.textColor = Color.black;
+	//add for hover as well.
+	var myblue = new Texture2D(1,1);
+	myblue.SetPixel(1,1,Color.blue);
+	myblue.Apply();
+	blueButtonStyle.normal.background = myblue;
+	
+	//repeat for red or whatever
 }
 
 
